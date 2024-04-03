@@ -1,7 +1,8 @@
 <template>
     <div class="job-list">
-        <ul>
-            <li v-for="job in jobs" :key="job.id">
+        <p>Ordered by {{ orderTerm }}</p>
+        <TransitionGroup name="list" tag="ul">
+            <li v-for="job in orderJobs" :key="job.id">
                 <h2>{{ job.title }} in {{ job.location }}</h2>
                 <div class="salary">
                     <p>{{ job.salary }} rupees</p>
@@ -12,17 +13,27 @@
                         reprehenderit aliquid consequuntur amet non facere.</p>
                 </div>
             </li>
-        </ul>
+        </TransitionGroup>
     </div>
 </template>
 
 <script setup lang="ts">
-import { defineProps } from 'vue'
+import { computed, defineProps } from 'vue'
 import Job from '@/types/Job'
+import OrderTerm from '@/types/OrderTerm'
 
 const props = defineProps<{
-    jobs: Job[]
+    jobs: Job[],
+    orderTerm: OrderTerm
 }>()
+
+
+const orderJobs = computed<Job[]>(()=>{
+    return [...props.jobs].sort((a: Job, b:Job)=>{
+        return a[props.orderTerm] > b[props.orderTerm] ? 1 : -1
+    })
+})
+
 </script>
 
 <style scoped>
@@ -60,5 +71,16 @@ const props = defineProps<{
     color: #17bf66;
     font-weight: bold;
     margin: 10px 4px;
+}
+.list-move, /* 对移动中的元素应用的过渡 */
+.list-enter-active,
+.list-leave-active {
+  transition: all 0.5s ease;
+}
+
+.list-enter-from,
+.list-leave-to {
+  opacity: 0;
+  transform: translateX(30px);
 }
 </style>
